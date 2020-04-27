@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goofys-app
+  namespace: goofys
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goofys-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  minReadySeconds: 20
+  template:
+    metadata:
+      labels:
+        app: goofys-app
+    spec:
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      volumes:
+      - name: s3mntvol
+        emptyDir: {}
+
+      containers:
+      - name: app
+        image: nginx:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: s3mntvol
+          mountPath: /app/data
+          mountPropagation: HostToContainer
+
+      - name: goofys-sidecar
+        image: whyxn/goofys:latest
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        envFrom:
+        - secretRef:
+            name: goofys-secret
+        - configMapRef:
+            name: goofys-config
+        volumeMounts:
+        - name: s3mntvol
+          mountPath: /mnt/data
+          mountPropagation: Bidirectional

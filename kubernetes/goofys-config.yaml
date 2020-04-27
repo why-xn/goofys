@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: goofys-config
+  namespace: goofys
+data:
+  MNT_PATH: "/mnt/data" # s3 mount path
+  S3_ENDPOINT: "https://your.s3.endpoint" #only for non-aws s3 (optional)
+  S3_REGION: "us-west-1" # if applicable (optional)
+  S3_BUCKET: "your-bucket-name"
+  DIR_MODE: "0777"
+  FILE_MODE: "0777"
